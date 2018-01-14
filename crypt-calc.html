@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Crypt calc</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<style>
+/*			.color1 {
+				background-color: #00ccff;
+			}
+			.color2 {
+				background-color: #99ff33;
+			}*/
+			.color3 {
+				background-color: #DDD;
+			}
+			.container {
+				margin: 100px;
+                                margin-top: 20px;
+				width: 1000px;
+			}
+			.body {
+				background-color: #EEE;
+			}
+			.col-sm-1 {
+                                float: left;
+				border: 1px solid gray;
+				overflow:hidden;
+				width: 10%;
+			}
+			.col-sm-2 {
+                                float: left;
+				border: 1px solid gray;
+				overflow:hidden;
+				width: 12%;
+			}
+		</style>
+<!--		<script src="quantities.js"></script>-->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<script>
+			var has = [
+				{
+					"name": "Bitcoin",
+                                        "symbol": "BTC",
+					"invested_bgn": "5000",
+					"withdraw_tax_percent": "2",
+					"quantity": 1
+				},
+                                {
+					"name": "Bitcoin Gold",
+                                        "symbol": "BTG",
+					"invested_bgn": "500",
+					"withdraw_tax_percent": "2.5",
+					"quantity": 1
+				},
+				{
+					"name": "Ethereum",
+                                        "symbol": "ETH",
+					"invested_bgn": "1000",
+					"withdraw_tax_percent": "2.5",
+					"quantity": 1
+				}
+				
+			];
+			
+			function numberWithSpaces(x) {
+				return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+			}
+			
+			function displayMyData(fullData) {
+				var res = '';
+//				var totalWinUsd = 0;
+//				var totalWinBgn = 0;
+				var totalSumUsd = 0;
+				var totalSumBgn = 0;
+				var totalSumInvestedBgn = 0;
+				var totalWinBgnclean = 0;
+				var totalSumBgnclean = 0;
+				for(var i = 0; i< fullData.length; i++) {
+//					fullData[i].win_usd = fullData[i].quantity * (fullData[i].price_usd - fullData[i].old_price_usd);
+					fullData[i].win_bgn = fullData[i].quantity * (fullData[i].price_bgn - fullData[i].old_price_bgn);
+					fullData[i].sum_usd = fullData[i].quantity * fullData[i].price_usd;
+					fullData[i].sum_bgn = fullData[i].quantity * fullData[i].price_bgn;
+					fullData[i].win_bgn_clean = fullData[i].win_bgn - Math.abs((fullData[i].quantity * fullData[i].price_bgn) * (fullData[i].withdraw_tax_percent/100));
+					fullData[i].sum_bgn_clean = (fullData[i].quantity * fullData[i].price_bgn) * ((100 - fullData[i].withdraw_tax_percent)/100);
+//					totalWinUsd += fullData[i].win_usd;
+//					totalWinBgn += fullData[i].win_bgn;
+					totalSumUsd += fullData[i].sum_usd;
+					totalSumBgn += fullData[i].sum_bgn;
+					totalSumInvestedBgn += parseInt(fullData[i].invested_bgn);
+//					totalWinBgnclean += fullData[i].win_bgn_clean;
+					totalSumBgnclean += fullData[i].sum_bgn_clean;
+					
+					res += '<div class="row">' 
+							+ '<div class="col-sm-2 color1">' + fullData[i].name + '</div>'
+							+ '<div class="col-sm-1 color2">' + fullData[i].quantity + '</div>'
+							+ '<div class="col-sm-1 color1 color3">' + fullData[i].old_price_usd + '</div>'
+							//+ '<div class="col-sm-1 color2">' + fullData[i].old_price_bgn + '</div>'
+							+ '<div class="col-sm-1 color1">' + numberWithSpaces(parseInt(fullData[i].invested_bgn)) + '</div>'
+							+ '<div class="col-sm-1 color2 color3">' + fullData[i].price_usd + '</div>'
+							+ '<div class="col-sm-1 color2 color3">' + fullData[i].price_btc + '</div>'
+							//+ '<div class="col-sm-1 color1">' + fullData[i].price_bgn + '</div>'
+							//+ '<div class="col-sm-1 color2">' + numberWithSpaces(parseInt(fullData[i].sum_usd)) + '</div>'
+							//+ '<div class="col-sm-1 color1">' + numberWithSpaces(parseInt(fullData[i].sum_bgn)) + '</div>'
+							+ '<div class="col-sm-1 color2">' + numberWithSpaces(parseInt(fullData[i].sum_bgn_clean)) + '</div>'
+							+ '<div class="col-sm-1 color1 color3">' + numberWithSpaces(parseInt(fullData[i].win_bgn_clean)) + '</div>'
+							+ '<div class="col-sm-1 color2">' + Math.round(fullData[i].percent_change_24h * 100) / 100 + '&#37;</div>'
+//							+ '<div class="col-sm-1 color2">' + parseInt(fullData[i].win_usd) + '</div>'
+//							+ '<div class="col-sm-1 color1">' + parseInt(fullData[i].win_bgn) + '</div>'
+//							+ '<div class="col-sm-1 color2">' + parseInt(fullData[i].win_bgn_clean) + '</div>'
+							+ '</div>';
+				}
+				res += '<p class="alert">1 USD is currently ' + 1/bgnToUsd + ' BGN</p>';
+				res += '<h4 class="alert alert-dark">Total invested ' + numberWithSpaces(parseInt(totalSumInvestedBgn)) + ' BGN</h4>';
+				//res += '<h4 class="alert alert-dark">Total sum ' + numberWithSpaces(parseInt(totalSumUsd)) + ' USD, ' + numberWithSpaces(parseInt(totalSumBgn)) + ' BGN ';
+				res += '<h4 class="alert alert-dark">After withdraw ' + numberWithSpaces(parseInt(totalSumBgnclean)) + ' BGN</h4>';
+				res += '<h4 class="alert alert-dark">Total win after withdraw ' + numberWithSpaces(parseInt(totalSumBgnclean - totalSumInvestedBgn)) + ' BGN</h4>';
+				//res += '<h4 class="alert alert-dark">Имаш за ' + numberWithSpaces(Math.floor(parseFloat(totalSumBgnclean - totalSumInvestedBgn)/1.2)) + ' кенчета Шуменско</h4>';
+				res += '<h4 class="alert alert-dark">Имаш за ' + (parseFloat(totalSumBgnclean - totalSumInvestedBgn)/569835.31) + ' Lamborghini Aventador S</h4>';
+				$( "#results" ).html( res );
+			}
+			
+			var bgnToUsd;
+			function updateMyData(data) {
+				bgnToUsd = 0.625; //data[0].market_cap_usd / data[0].market_cap_bgn;
+				//var usdToBgn = data[0].market_cap_bgn / data[0].market_cap_usd;
+				for(var i = 0; i< has.length; i++) {
+					for(var j = 0; j < data.length; j++) {
+						if(has[i].name === data[j].name || has[i].symbol === data[j].symbol) {
+							has[i].price_usd = data[j].price_usd;
+							has[i].price_btc = data[j].price_btc;
+							has[i].price_bgn = data[j].price_usd*(1/bgnToUsd)//data[j].price_bgn;
+							has[i].percent_change_1h = data[j].percent_change_1h;
+							has[i].percent_change_24h = data[j].percent_change_24h;
+							has[i].percent_change_7d = data[j].percent_change_7d;
+							
+							has[i].old_price_bgn = has[i].invested_bgn / has[i].quantity;
+							has[i].old_price_usd = has[i].old_price_bgn * bgnToUsd;
+						}
+					}
+				}
+				console.log(has);
+				displayMyData(has);
+			};
+                        
+                        function prepareCryptocompareData(data) {
+                            var newData = [];
+                            for (var key in data.RAW) {
+                                if(!data.RAW.hasOwnProperty(key)) continue;
+                                var temp = {};
+                                temp.symbol = data.RAW[key].USD.FROMSYMBOL;
+                                temp.price_usd = data.RAW[key].USD.PRICE;
+                                temp.price_bgn = data.RAW[key].BGN.PRICE;
+                                temp.price_btc = data.RAW[key].BTC.PRICE;
+                                temp.market_cap_usd = data.RAW[key].USD.MKTCAP;
+                                temp.market_cap_bgn = data.RAW[key].BGN.MKTCAP;
+                                temp.percent_change_24h = data.RAW[key].USD.CHANGE24HOUR / (data.RAW[key].USD.PRICE/100);                                
+                                newData.push(temp);
+                            }
+                            return newData;
+                        }
+                        
+                        function getApiDataUrl(provider) {
+                            if(provider === 'coinmarketcap') {
+                                return 'https://api.coinmarketcap.com/v1/ticker/?convert=BGN&limit=1500';
+                            } else if(provider === 'cryptocompare') { // //https://www.cryptocompare.com/api/#-api-data-price-
+                                var symbols = [];
+                                for(var i = 0; i< has.length; i++) {
+                                    symbols.push(has[i].symbol);
+                                }
+                                var symbolsString = symbols.join(',');
+				var apiUrl = 'https://min-api.cryptocompare.com/data/pricemultifull?fsyms='+symbolsString+'&tsyms=BTC,USD,BGN';
+                                return apiUrl;
+                            }
+                        }
+
+			function getApiData() {
+                            var provider = $('#provider_select').val(); // cryptocompare||coinmarketcap
+                            var apiUrl = getApiDataUrl(provider);
+
+                            $.get( apiUrl, function( data ) {
+                                    if(provider === 'cryptocompare') {
+                                        data = prepareCryptocompareData(data);
+                                    }
+                                    console.log(data);
+                                    updateMyData(data);
+                                    var time = new Date();
+                                    $('#last_updated').html(time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds() + ' @' + provider);
+                            });
+			}
+
+			$(document).ready(function () {
+				console.log("ready!");
+				getApiData();
+			});
+		</script>
+	</head>
+	<body>
+		<div class="container">
+                        <select id="provider_select" onchange="getApiData();">
+                            <option value="cryptocompare">Cryptocompare</option>
+                            <option value="coinmarketcap">Coinmarketcap</option>
+                        </select>
+                        <p>Last update time: <span id="last_updated"></span></p>
+			<div class="row first-row">
+				<div class="col-sm-2 color2">Name</div>
+				<div class="col-sm-1 color1">Quantity</div>
+				<div class="col-sm-1 color2">Old USD</div>
+				<!--<div class="col-sm-1 color1">Old BGN</div>-->
+				<div class="col-sm-1 color2">Invested&nbsp;BGN</div>
+				<div class="col-sm-1 color1">Current&nbsp;USD</div>
+				<div class="col-sm-1 color1">Current&nbsp;BTC</div>
+				<!--<div class="col-sm-1 color2">Current&nbsp;BGN</div>-->
+				<!--<div class="col-sm-1 color1">sum USD</div>-->
+				<!--<div class="col-sm-1 color2">sum BGN</div>-->
+				<div class="col-sm-1 color1">sum&nbsp;BGN&nbsp;clean</div>
+				<div class="col-sm-1 color2">win&nbsp;BGN&nbsp;clean</div>
+				<div class="col-sm-1 color1">Change&nbsp;24h</div>
+<!--				<div class="col-sm-1 color1">Win USD</div>
+				<div class="col-sm-1 color2">Win BGN</div>
+				<div class="col-sm-1 color1">Win BGN after tax</div>-->
+			</div>
+			<div id="results">
+<!--				<div class="row">
+					<div class="col-sm-1" style="background-color:lavender;">.col-sm-4</div>
+					<div class="col-sm-1" style="background-color:lavenderblush;">.col-sm-4</div>
+					<div class="col-sm-1" style="background-color:lavender;">.col-sm-4</div>
+					<div class="col-sm-1" style="background-color:lavenderblush;">.col-sm-4</div>
+				</div>-->
+			</div>
+			<button onclick="getApiData();" type="button" class="btn btn-success">Update</button>
+		</div>
+	</body>
+</html>
