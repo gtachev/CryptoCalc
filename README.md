@@ -1,4 +1,4 @@
-# CryptCalc
+# CryptoCalc
 Simple cryptocurrency calculator <br />
 It is pretty raw material at this point, I'm mostly using it for my own needs. <br />
 To use it just download it and edit the 'has' variable. <br />
