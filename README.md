@@ -1,0 +1,2 @@
+# CryptCalc
+Simple cryptocurrency calculator
