@@ -23,6 +23,14 @@
 			.body {
 				background-color: #EEE;
 			}
+			.col-sm-0 {
+				float: left;
+				border: 1px solid gray;
+				overflow:hidden;
+				width: 5%;
+				padding-right: 7px;
+				padding-left: 7px;
+			}
 			.col-sm-1 {
 				float: left;
 				border: 1px solid gray;
@@ -35,8 +43,12 @@
 				overflow:hidden;
 				width: 12%;
 			}
+			.row {
+				width: 100%;
+			}
 		</style>
 		<!--		<script src="quantities.js"></script>-->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.min.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 		<script>
 			var has = [
@@ -63,6 +75,79 @@
 				}
 				
 			];
+			
+			window.chartColors = [
+				'rgb(255, 99, 132)', // red
+				'rgb(255, 159, 64)', // orange
+				'rgb(255, 205, 86)', // yellow
+				'rgb(75, 192, 192)', // green
+				'rgb(54, 162, 235)', // blue
+				'rgb(153, 102, 255)', // purple
+				'rgb(201, 203, 207)' // grey
+			];
+
+			var config = {
+				type: 'pie',
+				data: {
+					datasets: [{
+						data: [
+							1,
+							2,
+							3,
+							4,
+							5
+						],
+						backgroundColor: [
+							window.chartColors[0],
+							window.chartColors[1],
+							window.chartColors[2],
+							window.chartColors[3],
+							window.chartColors[4]
+						],
+						label: 'Charts'
+					}],
+					labels: [
+						"Red",
+						"Orange",
+						"Yellow",
+						"Green",
+						"Blue"
+					]
+				},
+				options: {
+					responsive: true
+				}
+			};
+			
+			window.onload = function() {
+				console.log('onload here');
+				var ctx = document.getElementById("chart-area").getContext("2d");
+				window.myPie = new Chart(ctx, config);
+			};
+			
+			function updateChart(fullData, totalSumBTC) {
+				var data = [];
+				var backgroundColor = [];
+				var labels = [];
+				for(var i = 0; i < fullData.length; i++) {
+					var percent = Math.round((fullData[i].sum_btc/totalSumBTC * 100) * 1000) / 1000;
+					var sum = parseInt(fullData[i].sum_bgn_clean);
+					data.push(sum);
+					labels.push(fullData[i].name + ' ' + percent + '%');
+					var index = i % window.chartColors.length;
+					backgroundColor.push(window.chartColors[index]);
+				}
+				config.data = {
+					datasets: [{
+						data: data,
+						backgroundColor: backgroundColor,
+						label: 'Charts'
+					}],
+					labels: labels
+				};
+				console.log(config);
+				window.myPie.update();
+			}
 
 			function numberWithSpaces(x) {
 				return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
@@ -77,6 +162,7 @@
 				var totalSumInvestedBgn = 0;
 				var totalWinBgnclean = 0;
 				var totalSumBgnclean = 0;
+				var totalSumBTC = 0;
 				for (var i = 0; i < fullData.length; i++) {
 //					fullData[i].win_usd = fullData[i].quantity * (fullData[i].price_usd - fullData[i].old_price_usd);
 					fullData[i].win_bgn = fullData[i].quantity * (fullData[i].price_bgn - fullData[i].old_price_bgn);
@@ -84,6 +170,7 @@
 					fullData[i].sum_bgn = fullData[i].quantity * fullData[i].price_bgn;
 					fullData[i].win_bgn_clean = fullData[i].win_bgn - Math.abs((fullData[i].quantity * fullData[i].price_bgn) * (fullData[i].withdraw_tax_percent / 100));
 					fullData[i].sum_bgn_clean = (fullData[i].quantity * fullData[i].price_bgn) * ((100 - fullData[i].withdraw_tax_percent) / 100);
+					fullData[i].sum_btc = fullData[i].quantity * fullData[i].price_btc;
 //					totalWinUsd += fullData[i].win_usd;
 //					totalWinBgn += fullData[i].win_bgn;
 					totalSumUsd += fullData[i].sum_usd;
@@ -91,6 +178,7 @@
 					totalSumInvestedBgn += parseInt(fullData[i].invested_bgn);
 //					totalWinBgnclean += fullData[i].win_bgn_clean;
 					totalSumBgnclean += fullData[i].sum_bgn_clean;
+					totalSumBTC += fullData[i].sum_btc;
 
 					res += '<div class="row">'
 							+ '<div class="col-sm-2 color1">' + fullData[i].name + '</div>'
@@ -103,6 +191,7 @@
 							//+ '<div class="col-sm-1 color1">' + fullData[i].price_bgn + '</div>'
 							//+ '<div class="col-sm-1 color2">' + numberWithSpaces(parseInt(fullData[i].sum_usd)) + '</div>'
 							//+ '<div class="col-sm-1 color1">' + numberWithSpaces(parseInt(fullData[i].sum_bgn)) + '</div>'
+							+ '<div class="col-sm-0 color2">' + Math.round(fullData[i].sum_btc * 1000) / 1000 + '</div>'
 							+ '<div class="col-sm-1 color2">' + numberWithSpaces(parseInt(fullData[i].sum_bgn_clean)) + '</div>'
 							+ '<div class="col-sm-1 color1 color3">' + numberWithSpaces(parseInt(fullData[i].win_bgn_clean)) + '</div>'
 							+ '<div class="col-sm-1 color2">' + Math.round(fullData[i].percent_change_24h * 100) / 100 + '&#37;</div>'
@@ -114,11 +203,13 @@
 				res += '<p class="alert">1 USD is currently ' + 1 / bgnToUsd + ' BGN</p>';
 				res += '<h4 class="alert alert-dark">Total invested ' + numberWithSpaces(parseInt(totalSumInvestedBgn)) + ' BGN</h4>';
 				//res += '<h4 class="alert alert-dark">Total sum ' + numberWithSpaces(parseInt(totalSumUsd)) + ' USD, ' + numberWithSpaces(parseInt(totalSumBgn)) + ' BGN ';
+				res += '<h4 class="alert alert-dark">Overall ' + Math.round(totalSumBTC * 1000) / 1000 + ' BTC</h4>';
 				res += '<h4 class="alert alert-dark">After withdraw ' + numberWithSpaces(parseInt(totalSumBgnclean)) + ' BGN</h4>';
 				res += '<h4 class="alert alert-dark">Total win after withdraw ' + numberWithSpaces(parseInt(totalSumBgnclean - totalSumInvestedBgn)) + ' BGN</h4>';
 				//res += '<h4 class="alert alert-dark">Имаш за ' + numberWithSpaces(Math.floor(parseFloat(totalSumBgnclean - totalSumInvestedBgn)/1.2)) + ' кенчета Шуменско</h4>';
 				res += '<h4 class="alert alert-dark">Имаш за ' + (parseFloat(totalSumBgnclean - totalSumInvestedBgn) / 569835.31) + ' Lamborghini Aventador S</h4>';
 				$("#results").html(res);
+				updateChart(fullData, totalSumBTC);
 			}
 
 			var bgnToUsd;
@@ -154,6 +245,9 @@
 					temp.price_usd = data.RAW[key].USD.PRICE;
 					temp.price_bgn = data.RAW[key].BGN.PRICE;
 					temp.price_btc = data.RAW[key].BTC.PRICE;
+                                        if(key === 'BTC') { // fix some weird api error
+                                            temp.price_btc = 1;
+                                        }
 					temp.market_cap_usd = data.RAW[key].USD.MKTCAP;
 					temp.market_cap_bgn = data.RAW[key].BGN.MKTCAP;
 					temp.percent_change_24h = data.RAW[key].USD.CHANGE24HOUR / (data.RAW[key].USD.PRICE / 100);
@@ -200,36 +294,38 @@
 	<body>
 		<div class="container">
 			<select id="provider_select" onchange="getApiData();">
-				<option value="cryptocompare">Cryptocompare</option>
 				<option value="coinmarketcap">Coinmarketcap</option>
+				<option value="cryptocompare">Cryptocompare</option>
 			</select>
 			<p>Last update time: <span id="last_updated"></span></p>
-			<div class="row first-row">
-				<div class="col-sm-2 color2">Name</div>
-				<div class="col-sm-1 color1">Quantity</div>
-				<div class="col-sm-1 color2">Old USD</div>
-				<!--<div class="col-sm-1 color1">Old BGN</div>-->
-				<div class="col-sm-1 color2">Invested&nbsp;BGN</div>
-				<div class="col-sm-1 color1">Current&nbsp;USD</div>
-				<div class="col-sm-1 color1">Current&nbsp;BTC</div>
-				<!--<div class="col-sm-1 color2">Current&nbsp;BGN</div>-->
-				<!--<div class="col-sm-1 color1">sum USD</div>-->
-				<!--<div class="col-sm-1 color2">sum BGN</div>-->
-				<div class="col-sm-1 color1">sum&nbsp;BGN&nbsp;clean</div>
-				<div class="col-sm-1 color2">win&nbsp;BGN&nbsp;clean</div>
-				<div class="col-sm-1 color1">Change&nbsp;24h</div>
-				<!--				<div class="col-sm-1 color1">Win USD</div>
-								<div class="col-sm-1 color2">Win BGN</div>
-								<div class="col-sm-1 color1">Win BGN after tax</div>-->
-			</div>
-			<div id="results">
-				<!--				<div class="row">
-									<div class="col-sm-1" style="background-color:lavender;">.col-sm-4</div>
-									<div class="col-sm-1" style="background-color:lavenderblush;">.col-sm-4</div>
-									<div class="col-sm-1" style="background-color:lavender;">.col-sm-4</div>
-									<div class="col-sm-1" style="background-color:lavenderblush;">.col-sm-4</div>
-								</div>-->
-			</div>
+				<canvas id="chart-area" style="width:50%"></canvas>
+				<div class="row first-row">
+					<div class="col-sm-2 color2">Name</div>
+					<div class="col-sm-1 color1">Quantity</div>
+					<div class="col-sm-1 color2">Old USD</div>
+					<!--<div class="col-sm-1 color1">Old BGN</div>-->
+					<div class="col-sm-1 color2">Invested&nbsp;BGN</div>
+					<div class="col-sm-1 color1">Current&nbsp;USD</div>
+					<div class="col-sm-1 color1">Current&nbsp;BTC</div>
+					<!--<div class="col-sm-1 color2">Current&nbsp;BGN</div>-->
+					<!--<div class="col-sm-1 color1">sum USD</div>-->
+					<!--<div class="col-sm-1 color2">sum BGN</div>-->
+					<div class="col-sm-0 color1">BTC</div>
+					<div class="col-sm-1 color1">sum&nbsp;BGN&nbsp;clean</div>
+					<div class="col-sm-1 color2">win&nbsp;BGN&nbsp;clean</div>
+					<div class="col-sm-1 color1">Change&nbsp;24h</div>
+					<!--				<div class="col-sm-1 color1">Win USD</div>
+									<div class="col-sm-1 color2">Win BGN</div>
+									<div class="col-sm-1 color1">Win BGN after tax</div>-->
+				</div>
+				<div id="results">
+					<!--				<div class="row">
+										<div class="col-sm-1" style="background-color:lavender;">.col-sm-4</div>
+										<div class="col-sm-1" style="background-color:lavenderblush;">.col-sm-4</div>
+										<div class="col-sm-1" style="background-color:lavender;">.col-sm-4</div>
+										<div class="col-sm-1" style="background-color:lavenderblush;">.col-sm-4</div>
+									</div>-->
+				</div>
 			<button onclick="getApiData();" type="button" class="btn btn-success">Update</button>
 		</div>
 	</body>
