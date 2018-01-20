@@ -46,6 +46,15 @@
 			.row {
 				width: 100%;
 			}
+                        h4.alert {
+                            margin-bottom: 0px;
+                            padding: 10px;
+                        }
+                        .footer div {
+                            margin-left:10px;
+                            margin-right:30px;
+                            float:left;
+                        }
 		</style>
 		<!--		<script src="quantities.js"></script>-->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.min.js"></script>
@@ -154,7 +163,7 @@
 			}
 
 			function displayMyData(fullData) {
-				var res = '';
+				var resTable = '';
 //				var totalWinUsd = 0;
 //				var totalWinBgn = 0;
 				var totalSumUsd = 0;
@@ -180,7 +189,7 @@
 					totalSumBgnclean += fullData[i].sum_bgn_clean;
 					totalSumBTC += fullData[i].sum_btc;
 
-					res += '<div class="row">'
+					resTable += '<div class="row">'
 							+ '<div class="col-sm-2 color1">' + fullData[i].name + '</div>'
 							+ '<div class="col-sm-1 color2">' + fullData[i].quantity + '</div>'
 							+ '<div class="col-sm-1 color1 color3">' + fullData[i].old_price_usd + '</div>'
@@ -200,15 +209,17 @@
 //							+ '<div class="col-sm-1 color2">' + parseInt(fullData[i].win_bgn_clean) + '</div>'
 							+ '</div>';
 				}
-				res += '<p class="alert">1 USD is currently ' + 1 / bgnToUsd + ' BGN</p>';
-				res += '<h4 class="alert alert-dark">Total invested ' + numberWithSpaces(parseInt(totalSumInvestedBgn)) + ' BGN</h4>';
-				//res += '<h4 class="alert alert-dark">Total sum ' + numberWithSpaces(parseInt(totalSumUsd)) + ' USD, ' + numberWithSpaces(parseInt(totalSumBgn)) + ' BGN ';
-				res += '<h4 class="alert alert-dark">Overall ' + Math.round(totalSumBTC * 1000) / 1000 + ' BTC</h4>';
-				res += '<h4 class="alert alert-dark">After withdraw ' + numberWithSpaces(parseInt(totalSumBgnclean)) + ' BGN</h4>';
-				res += '<h4 class="alert alert-dark">Total win after withdraw ' + numberWithSpaces(parseInt(totalSumBgnclean - totalSumInvestedBgn)) + ' BGN</h4>';
+                                $("#results-table").html(resTable);
+                                var restText = '';
+				restText += '<p class="alert">1 USD is currently ' + 1 / bgnToUsd + ' BGN</p>';
+				restText += '<h4 class="alert alert-dark">Total invested ' + numberWithSpaces(parseInt(totalSumInvestedBgn)) + ' BGN</h4>';
+				//restText += '<h4 class="alert alert-dark">Total sum ' + numberWithSpaces(parseInt(totalSumUsd)) + ' USD, ' + numberWithSpaces(parseInt(totalSumBgn)) + ' BGN ';
+				restText += '<h4 class="alert alert-dark">Overall ' + Math.round(totalSumBTC * 1000) / 1000 + ' BTC</h4>';
+				restText += '<h4 class="alert alert-dark">After withdraw ' + numberWithSpaces(parseInt(totalSumBgnclean)) + ' BGN</h4>';
+				restText += '<h4 class="alert alert-dark">Total win after withdraw ' + numberWithSpaces(parseInt(totalSumBgnclean - totalSumInvestedBgn)) + ' BGN</h4>';
 				//res += '<h4 class="alert alert-dark">Имаш за ' + numberWithSpaces(Math.floor(parseFloat(totalSumBgnclean - totalSumInvestedBgn)/1.2)) + ' кенчета Шуменско</h4>';
-				res += '<h4 class="alert alert-dark">Имаш за ' + (parseFloat(totalSumBgnclean - totalSumInvestedBgn) / 569835.31) + ' Lamborghini Aventador S</h4>';
-				$("#results").html(res);
+				restText += '<h4 class="alert alert-dark">Имаш за ' + (parseFloat(totalSumBgnclean - totalSumInvestedBgn) / 569835.31) + ' Lamborghini Aventador S</h4>';
+				$("#results-text").html(restText);
 				updateChart(fullData, totalSumBTC);
 			}
 
@@ -291,42 +302,54 @@
 			});
 		</script>
 	</head>
-	<body>
-		<div class="container">
-			<select id="provider_select" onchange="getApiData();">
-				<option value="coinmarketcap">Coinmarketcap</option>
-				<option value="cryptocompare">Cryptocompare</option>
-			</select>
-			<p>Last update time: <span id="last_updated"></span></p>
-				<canvas id="chart-area" style="width:50%"></canvas>
-				<div class="row first-row">
-					<div class="col-sm-2 color2">Name</div>
-					<div class="col-sm-1 color1">Quantity</div>
-					<div class="col-sm-1 color2">Old USD</div>
-					<!--<div class="col-sm-1 color1">Old BGN</div>-->
-					<div class="col-sm-1 color2">Invested&nbsp;BGN</div>
-					<div class="col-sm-1 color1">Current&nbsp;USD</div>
-					<div class="col-sm-1 color1">Current&nbsp;BTC</div>
-					<!--<div class="col-sm-1 color2">Current&nbsp;BGN</div>-->
-					<!--<div class="col-sm-1 color1">sum USD</div>-->
-					<!--<div class="col-sm-1 color2">sum BGN</div>-->
-					<div class="col-sm-0 color1">BTC</div>
-					<div class="col-sm-1 color1">sum&nbsp;BGN&nbsp;clean</div>
-					<div class="col-sm-1 color2">win&nbsp;BGN&nbsp;clean</div>
-					<div class="col-sm-1 color1">Change&nbsp;24h</div>
-					<!--				<div class="col-sm-1 color1">Win USD</div>
-									<div class="col-sm-1 color2">Win BGN</div>
-									<div class="col-sm-1 color1">Win BGN after tax</div>-->
-				</div>
-				<div id="results">
-					<!--				<div class="row">
-										<div class="col-sm-1" style="background-color:lavender;">.col-sm-4</div>
-										<div class="col-sm-1" style="background-color:lavenderblush;">.col-sm-4</div>
-										<div class="col-sm-1" style="background-color:lavender;">.col-sm-4</div>
-										<div class="col-sm-1" style="background-color:lavenderblush;">.col-sm-4</div>
-									</div>-->
-				</div>
-			<button onclick="getApiData();" type="button" class="btn btn-success">Update</button>
-		</div>
-	</body>
+        <body>
+            <div class="container">
+                <div style="width:100%;float:left;">
+                    <div class="row first-row">
+                        <div class="col-sm-2 color2">Name</div>
+                        <div class="col-sm-1 color1">Quantity</div>
+                        <div class="col-sm-1 color2">Old USD</div>
+                        <!--<div class="col-sm-1 color1">Old BGN</div>-->
+                        <div class="col-sm-1 color2">Invested&nbsp;BGN</div>
+                        <div class="col-sm-1 color1">Current&nbsp;USD</div>
+                        <div class="col-sm-1 color1">Current&nbsp;BTC</div>
+                        <!--<div class="col-sm-1 color2">Current&nbsp;BGN</div>-->
+                        <!--<div class="col-sm-1 color1">sum USD</div>-->
+                        <!--<div class="col-sm-1 color2">sum BGN</div>-->
+                        <div class="col-sm-0 color1">BTC</div>
+                        <div class="col-sm-1 color1">sum&nbsp;BGN&nbsp;clean</div>
+                        <div class="col-sm-1 color2">win&nbsp;BGN&nbsp;clean</div>
+                        <div class="col-sm-1 color1">Change&nbsp;24h</div>
+                        <!--				<div class="col-sm-1 color1">Win USD</div>
+                                                        <div class="col-sm-1 color2">Win BGN</div>
+                                                        <div class="col-sm-1 color1">Win BGN after tax</div>-->
+                    </div>
+                    <div id="results-table">
+
+                    </div>
+                </div>
+                <div style="width:100%;float:left;">
+                    <div id="results-text" style="width:40%;float:left;">
+
+                    </div>
+                    <div style="width:60%;float:left;">
+                        <canvas id="chart-area"></canvas>
+                    </div>
+                </div>
+                <div style="width:100%;float:left;" class="footer">
+                    <div>
+                        <select id="provider_select" onchange="getApiData();">
+                            <option value="coinmarketcap">Coinmarketcap</option>
+                            <option value="cryptocompare">Cryptocompare</option>
+                        </select>
+                    </div>
+                    <div>
+                        <p>Last update time: <span id="last_updated"></span></p>
+                    </div>
+                    <div>
+                        <button onclick="getApiData();" type="button" class="btn btn-success">Update</button>
+                    </div>
+                </div>
+            </div>
+        </body>
 </html>
