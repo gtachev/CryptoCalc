@@ -58,6 +58,7 @@
 		</style>
 		<!--		<script src="quantities.js"></script>-->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 		<script>
 			var has = [
@@ -92,7 +93,17 @@
 				'rgb(75, 192, 192)', // green
 				'rgb(54, 162, 235)', // blue
 				'rgb(153, 102, 255)', // purple
-				'rgb(201, 203, 207)' // grey
+				'rgb(201, 203, 207)', // grey
+				'#0091CD', // brandcolors
+				'#E2D7AC', //
+				'#B4A996', //
+				'#ECB731', //
+				'#8EC06C', //
+				'#537B35', //
+				'#C4DFF6', //
+				'#56A0D3', //
+				'#004B79', //
+				'#7F181B' //
 			];
 
 			var config = {
@@ -128,10 +139,113 @@
 				}
 			};
 			
+			//var MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+			function newDate(days) {
+				return moment().add(days, 'd');
+			}
+			var configHistory = {
+				type: 'line',
+				data: {
+					labels: [newDate(-4), newDate(-3), newDate(2), newDate(3), newDate(4), newDate(5), newDate(6)],
+					datasets: [{
+						label: "My First dataset",
+						backgroundColor: window.chartColors[0],
+						borderColor: window.chartColors[0],
+						data: [
+							1,
+							2,
+							5,
+							3,
+							2,
+							1,
+							4
+						],
+						fill: false
+					}, {
+						label: "My Second dataset",
+						fill: false,
+						backgroundColor: window.chartColors[1],
+						borderColor: window.chartColors[1],
+						data: [
+							4,
+							5,
+							1,
+							7,
+							1,
+							7,
+							3
+						]
+					}]
+				},
+				options: {
+					responsive: true,
+					title:{
+						display:true,
+						text:'Chart.js Line Chart'
+					},
+					tooltips: {
+						mode: 'index',
+						intersect: false
+					},
+						hover: {
+							mode: 'nearest',
+							intersect: true
+						},
+						scales: {
+							xAxes: [{
+							  type: 'time',
+							  time: {
+								displayFormats: {
+								  'millisecond': 'MMM DD',
+								  'second': 'MMM DD',
+								  'minute': 'MMM DD',
+								  'hour': 'MMM DD',
+								  'day': 'MMM DD',
+								  'week': 'MMM DD',
+								  'month': 'MMM DD',
+								  'quarter': 'MMM DD',
+								  'year': 'MMM DD'
+								}
+							  }
+							}]
+						}
+					}
+				};
+
+			
 			window.onload = function() {
 				console.log('onload here');
 				var ctx = document.getElementById("chart-area").getContext("2d");
 				window.myPie = new Chart(ctx, config);
+				
+				if(localStorage.getItem("history") === null) {
+					var data = {
+						labels: [],
+						datasets: [{
+								label: "Sum BGN after withdraw",
+								backgroundColor: window.chartColors[0],
+								borderColor: window.chartColors[0],
+								data: [],
+								fill: false
+							},
+							{
+								label: "Win BGN after withdraw",
+								backgroundColor: window.chartColors[1],
+								borderColor: window.chartColors[1],
+								data: [],
+								fill: false
+							}
+						]
+					};
+					localStorage.setItem("history", JSON.stringify(data));
+				}
+				configHistory.data = JSON.parse(localStorage.getItem("history"));
+				
+//				console.log('config history');
+//				console.log(configHistory.data);
+				var ctxHistory = document.getElementById("chart-area-history").getContext("2d");
+				window.myLine = new Chart(ctxHistory, configHistory);
+//				console.log(newDate(-4));
 			};
 			
 			function updateChart(fullData, totalSumBTC) {
@@ -156,6 +270,43 @@
 				};
 				console.log(config);
 				window.myPie.update();
+			}
+			function updateChartHistory(fullData, totalSumBgnclean, totalWinBgnclean)
+			{
+				totalSumBgnclean = parseInt(totalSumBgnclean);
+				totalWinBgnclean = parseInt(totalWinBgnclean);
+				var time = moment();
+				configHistory.data.labels.push(time);
+				configHistory.data.datasets[0].data.push(totalSumBgnclean);
+				configHistory.data.datasets[1].data.push(totalWinBgnclean);
+				console.log('before save');
+				console.log(configHistory.data);
+				var temp  = {
+					labels: [],
+					datasets: [
+						{
+							label: "Sum BGN after withdraw",
+							backgroundColor: window.chartColors[0],
+							borderColor: window.chartColors[0],
+							data: [],
+							fill: false
+						},
+						{
+							label: "Win BGN after withdraw",
+							backgroundColor: window.chartColors[0],
+							borderColor: window.chartColors[0],
+							data: [],
+							fill: false
+						}
+					]
+				};
+				for(var i = 0; i< configHistory.data.labels.length; i++) { // fix circular json...
+					temp.labels.push(configHistory.data.labels[i]);
+					temp.datasets[0].data.push(configHistory.data.datasets[0].data[i]);
+					temp.datasets[1].data.push(configHistory.data.datasets[1].data[i]);
+				}
+				localStorage.setItem("history", JSON.stringify(temp));
+				window.myLine.update();
 			}
 
 			function numberWithSpaces(x) {
@@ -188,6 +339,7 @@
 //					totalWinBgnclean += fullData[i].win_bgn_clean;
 					totalSumBgnclean += fullData[i].sum_bgn_clean;
 					totalSumBTC += fullData[i].sum_btc;
+					totalWinBgnclean = totalSumBgnclean - totalSumInvestedBgn;
 
 					resTable += '<div class="row">'
 							+ '<div class="col-sm-2 color1">' + fullData[i].name + '</div>'
@@ -216,11 +368,12 @@
 				//restText += '<h4 class="alert alert-dark">Total sum ' + numberWithSpaces(parseInt(totalSumUsd)) + ' USD, ' + numberWithSpaces(parseInt(totalSumBgn)) + ' BGN ';
 				restText += '<h4 class="alert alert-dark">Overall ' + Math.round(totalSumBTC * 1000) / 1000 + ' BTC</h4>';
 				restText += '<h4 class="alert alert-dark">After withdraw ' + numberWithSpaces(parseInt(totalSumBgnclean)) + ' BGN</h4>';
-				restText += '<h4 class="alert alert-dark">Total win after withdraw ' + numberWithSpaces(parseInt(totalSumBgnclean - totalSumInvestedBgn)) + ' BGN</h4>';
-				//res += '<h4 class="alert alert-dark">Имаш за ' + numberWithSpaces(Math.floor(parseFloat(totalSumBgnclean - totalSumInvestedBgn)/1.2)) + ' кенчета Шуменско</h4>';
-				restText += '<h4 class="alert alert-dark">Имаш за ' + (parseFloat(totalSumBgnclean - totalSumInvestedBgn) / 569835.31) + ' Lamborghini Aventador S</h4>';
+				restText += '<h4 class="alert alert-dark">Total win after withdraw ' + numberWithSpaces(parseInt(totalWinBgnclean)) + ' BGN</h4>';
+				//res += '<h4 class="alert alert-dark">Имаш за ' + numberWithSpaces(Math.floor(parseFloat(totalWinBgnclean)/1.2)) + ' кенчета Шуменско</h4>';
+				restText += '<h4 class="alert alert-dark">Имаш за ' + (parseFloat(totalWinBgnclean) / 569835.31) + ' Lamborghini Aventador S</h4>';
 				$("#results-text").html(restText);
 				updateChart(fullData, totalSumBTC);
+				updateChartHistory(fullData, totalSumBgnclean, totalWinBgnclean);
 			}
 
 			var bgnToUsd;
@@ -337,19 +490,22 @@
                     </div>
                 </div>
                 <div style="width:100%;float:left;" class="footer">
+					<div>
+                        <button onclick="getApiData();" type="button" class="btn btn-success">Update</button>
+                    </div>
+                    <div>
+                        <p>Last update time: <span id="last_updated"></span></p>
+                    </div>
                     <div>
                         <select id="provider_select" onchange="getApiData();">
                             <option value="coinmarketcap">Coinmarketcap</option>
                             <option value="cryptocompare">Cryptocompare</option>
                         </select>
                     </div>
-                    <div>
-                        <p>Last update time: <span id="last_updated"></span></p>
-                    </div>
-                    <div>
-                        <button onclick="getApiData();" type="button" class="btn btn-success">Update</button>
-                    </div>
                 </div>
+				<div style="width:100%;float:left;">
+					<canvas id="chart-area-history"></canvas>
+				</div>
             </div>
         </body>
 </html>
