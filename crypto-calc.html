@@ -4,6 +4,7 @@
 		<title>Crypt calc</title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<link rel="shortcut icon" href="http://www.car-brand-names.com/wp-content/uploads/2015/03/Lamborghini-Logo.png" type="image/x-icon" />
 		<link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 		<style>
 			/*			.color1 {
@@ -181,7 +182,7 @@
 					responsive: true,
 					title:{
 						display:true,
-						text:'Chart.js Line Chart'
+						text:'History Chart'
 					},
 					tooltips: {
 						mode: 'index',
@@ -230,8 +231,8 @@
 							},
 							{
 								label: "Win BGN after withdraw",
-								backgroundColor: window.chartColors[1],
-								borderColor: window.chartColors[1],
+								backgroundColor: window.chartColors[2],
+								borderColor: window.chartColors[2],
 								data: [],
 								fill: false
 							}
@@ -293,8 +294,8 @@
 						},
 						{
 							label: "Win BGN after withdraw",
-							backgroundColor: window.chartColors[0],
-							borderColor: window.chartColors[0],
+							backgroundColor: window.chartColors[2],
+							borderColor: window.chartColors[2],
 							data: [],
 							fill: false
 						}
@@ -371,6 +372,18 @@
 				restText += '<h4 class="alert alert-dark">Total win after withdraw ' + numberWithSpaces(parseInt(totalWinBgnclean)) + ' BGN</h4>';
 				//res += '<h4 class="alert alert-dark">Имаш за ' + numberWithSpaces(Math.floor(parseFloat(totalWinBgnclean)/1.2)) + ' кенчета Шуменско</h4>';
 				restText += '<h4 class="alert alert-dark">Имаш за ' + (parseFloat(totalWinBgnclean) / 569835.31) + ' Lamborghini Aventador S</h4>';
+				var lamboPercent = Math.round((parseFloat(totalWinBgnclean) / 569835.31) * 100);
+				var lamboPercentClass = 'progress-bar-danger';
+				if(lamboPercent >= 10) {
+					lamboPercentClass = 'progress-bar-warning';
+				}
+				if(lamboPercent >= 20) {
+					lamboPercentClass = 'progress-bar-info';
+				}
+				if(lamboPercent >= 50) {
+					lamboPercentClass = 'progress-bar-success';
+				}
+				restText += '<div class="progress"><div class="progress-bar '+lamboPercentClass+'" role="progressbar" aria-valuenow="'+lamboPercent+'" aria-valuemin="0" aria-valuemax="100" style="width:'+lamboPercent+'%"><span class="">'+lamboPercent+'%</span></div></div>';
 				$("#results-text").html(restText);
 				updateChart(fullData, totalSumBTC);
 				updateChartHistory(fullData, totalSumBgnclean, totalWinBgnclean);
