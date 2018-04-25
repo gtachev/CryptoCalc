@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Crypt calc</title>
+		<title>Crypto calc</title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<link rel="shortcut icon" href="http://www.car-brand-names.com/wp-content/uploads/2015/03/Lamborghini-Logo.png" type="image/x-icon" />
@@ -17,14 +17,14 @@
 				background-color: #DDD;
 			}
 			.container {
-				margin: 100px;
-				margin-top: 20px;
-				width: 1000px;
+/*				margin: 100px;
+				margin-top: 20px;*/
+				width: 1200px;
 			}
 			.body {
 				background-color: #EEE;
 			}
-			.col-sm-0 {
+/*			.col-sm-0 {
 				float: left;
 				border: 1px solid gray;
 				overflow:hidden;
@@ -46,7 +46,7 @@
 			}
 			.row {
 				width: 100%;
-			}
+			}*/
                         h4.alert {
                             margin-bottom: 0px;
                             padding: 10px;
@@ -223,6 +223,7 @@
 					var data = {
 						labels: [],
 						datasets: [{
+								hidden: true,
 								label: "Sum BGN after withdraw",
 								backgroundColor: window.chartColors[0],
 								borderColor: window.chartColors[0],
@@ -286,6 +287,7 @@
 					labels: [],
 					datasets: [
 						{
+							hidden: true,
 							label: "Sum BGN after withdraw",
 							backgroundColor: window.chartColors[0],
 							borderColor: window.chartColors[0],
@@ -342,25 +344,25 @@
 					totalSumBTC += fullData[i].sum_btc;
 					totalWinBgnclean = totalSumBgnclean - totalSumInvestedBgn;
 
-					resTable += '<div class="row">'
-							+ '<div class="col-sm-2 color1">' + fullData[i].name + '</div>'
-							+ '<div class="col-sm-1 color2">' + fullData[i].quantity + '</div>'
-							+ '<div class="col-sm-1 color1 color3">' + fullData[i].old_price_usd + '</div>'
-							//+ '<div class="col-sm-1 color2">' + fullData[i].old_price_bgn + '</div>'
-							+ '<div class="col-sm-1 color1">' + numberWithSpaces(parseInt(fullData[i].invested_bgn)) + '</div>'
-							+ '<div class="col-sm-1 color2 color3">' + fullData[i].price_usd + '</div>'
-							+ '<div class="col-sm-1 color2 color3">' + fullData[i].price_btc + '</div>'
-							//+ '<div class="col-sm-1 color1">' + fullData[i].price_bgn + '</div>'
-							//+ '<div class="col-sm-1 color2">' + numberWithSpaces(parseInt(fullData[i].sum_usd)) + '</div>'
-							//+ '<div class="col-sm-1 color1">' + numberWithSpaces(parseInt(fullData[i].sum_bgn)) + '</div>'
-							+ '<div class="col-sm-0 color2">' + Math.round(fullData[i].sum_btc * 1000) / 1000 + '</div>'
-							+ '<div class="col-sm-1 color2">' + numberWithSpaces(parseInt(fullData[i].sum_bgn_clean)) + '</div>'
-							+ '<div class="col-sm-1 color1 color3">' + numberWithSpaces(parseInt(fullData[i].win_bgn_clean)) + '</div>'
-							+ '<div class="col-sm-1 color2">' + Math.round(fullData[i].percent_change_24h * 100) / 100 + '&#37;</div>'
-//							+ '<div class="col-sm-1 color2">' + parseInt(fullData[i].win_usd) + '</div>'
-//							+ '<div class="col-sm-1 color1">' + parseInt(fullData[i].win_bgn) + '</div>'
-//							+ '<div class="col-sm-1 color2">' + parseInt(fullData[i].win_bgn_clean) + '</div>'
-							+ '</div>';
+					resTable += '<tr>'
+							+ '<td class="text-nowrap">' + fullData[i].name + '</td>'
+							+ '<td>' + fullData[i].quantity + '</td>'
+//							+ '<td class="color3">' + fullData[i].old_price_usd + '</td>'
+							//+ '<div>' + fullData[i].old_price_bgn + '</div>'
+							+ '<td>' + numberWithSpaces(parseInt(fullData[i].invested_bgn)) + '</td>'
+							+ '<td class="color3">' + fullData[i].price_usd + '</td>'
+							+ '<td class="color3">' + fullData[i].price_btc + '</td>'
+							//+ '<div>' + fullData[i].price_bgn + '</div>'
+							//+ '<div>' + numberWithSpaces(parseInt(fullData[i].sum_usd)) + '</div>'
+							//+ '<div>' + numberWithSpaces(parseInt(fullData[i].sum_bgn)) + '</div>'
+							+ '<td>' + Math.round(fullData[i].sum_btc * 1000) / 1000 + '</td>'
+							+ '<td>' + numberWithSpaces(parseInt(fullData[i].sum_bgn_clean)) + '</td>'
+							+ '<td class="color3">' + numberWithSpaces(parseInt(fullData[i].win_bgn_clean)) + '</td>'
+							+ '<td>' + Math.round(fullData[i].percent_change_24h * 100) / 100 + '&#37;</td>'
+//							+ '<div>' + parseInt(fullData[i].win_usd) + '</div>'
+//							+ '<div>' + parseInt(fullData[i].win_bgn) + '</div>'
+//							+ '<div>' + parseInt(fullData[i].win_bgn_clean) + '</div>'
+							+ '</tr>';
 				}
                                 $("#results-table").html(resTable);
                                 var restText = '';
@@ -470,30 +472,32 @@
 	</head>
         <body>
             <div class="container">
-                <div style="width:100%;float:left;">
-                    <div class="row first-row">
-                        <div class="col-sm-2 color2">Name</div>
-                        <div class="col-sm-1 color1">Quantity</div>
-                        <div class="col-sm-1 color2">Old USD</div>
-                        <!--<div class="col-sm-1 color1">Old BGN</div>-->
-                        <div class="col-sm-1 color2">Invested&nbsp;BGN</div>
-                        <div class="col-sm-1 color1">Current&nbsp;USD</div>
-                        <div class="col-sm-1 color1">Current&nbsp;BTC</div>
-                        <!--<div class="col-sm-1 color2">Current&nbsp;BGN</div>-->
-                        <!--<div class="col-sm-1 color1">sum USD</div>-->
-                        <!--<div class="col-sm-1 color2">sum BGN</div>-->
-                        <div class="col-sm-0 color1">BTC</div>
-                        <div class="col-sm-1 color1">sum&nbsp;BGN&nbsp;clean</div>
-                        <div class="col-sm-1 color2">win&nbsp;BGN&nbsp;clean</div>
-                        <div class="col-sm-1 color1">Change&nbsp;24h</div>
-                        <!--				<div class="col-sm-1 color1">Win USD</div>
-                                                        <div class="col-sm-1 color2">Win BGN</div>
-                                                        <div class="col-sm-1 color1">Win BGN after tax</div>-->
-                    </div>
-                    <div id="results-table">
+                <table class="table table-hover table-striped" style="width:100%;float:left;">
+                    <thead class="row first-row">
+						<tr>
+							<td>Name</td>
+							<td>Quantity</td>
+							<!--<td>Old USD</td>-->
+							<!--<div>Old BGN</div>-->
+							<td>Invested&nbsp;BGN</td>
+							<td>Price&nbsp;USD</td>
+							<td>Price&nbsp;BTC</td>
+							<!--<div>Current&nbsp;BGN</div>-->
+							<!--<div>sum USD</div>-->
+							<!--<div>sum BGN</div>-->
+							<td class="col-sm-0 color1">Sum BTC</td>
+							<td>Sum&nbsp;BGN&nbsp;clean</td>
+							<td>Win&nbsp;BGN&nbsp;clean</td>
+							<td>Change&nbsp;24h</td>
+                        <!--				<div>Win USD</div>
+                                                        <div>Win BGN</div>
+                                                        <div>Win BGN after tax</div>-->
+						</tr>
+                    </thead>
+                    <tbody id="results-table">
 
-                    </div>
-                </div>
+                    </tbody>
+                </table>
                 <div style="width:100%;float:left;">
                     <div id="results-text" style="width:40%;float:left;">
 
